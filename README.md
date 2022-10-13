@@ -1,20 +1,20 @@
-# (TODO: your game's title)
+# BrickBreak Fever
 
-Author: (TODO: your name)
+**Author:** Angela Zhang
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+**Design:** BrickBreak is a fun classic game by itself, but what if we add... more? More paddles, more balls, more bricks, more fun!
 
-Networking: (TODO: How does your game implement client/server multiplayer? What messages are transmitted? Where in the code?)
+**Networking:** Controls made by each client are sent along to the server, and the server handles converting those controls into updates of the game state (player position, ball position, collison handling) & sends all this information to each client.
 
-Screen Shot:
+**Screen Shot:**
 
 ![Screen Shot](screenshot.png)
 
-How To Play:
+**How To Play:**
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+A/D to move left and right and control the player, hit the ball back to clear as many blocks as you can
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+**Sources:** N/A
 
 This game was built with [NEST](NEST.md).
 

@@ -1,6 +1,7 @@
 #include "Mode.hpp"
 
 #include "Connection.hpp"
+#include "DrawLines.hpp"
 #include "Game.hpp"
 
 #include <glm/glm.hpp>
@@ -17,6 +18,8 @@ struct PlayMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
+	void drawBox(DrawLines &lines, glm::vec2 boxCenterPos, glm::u8vec4 col, float boxWidth, float boxHeight);
+
 	//----- game state -----
 
 	//input tracking for local player:
@@ -30,5 +33,4 @@ struct PlayMode : Mode {
 
 	//connection to server:
 	Client &client;
-
 };

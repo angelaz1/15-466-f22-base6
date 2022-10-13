@@ -101,17 +101,33 @@ void PlayMode::update(float elapsed) {
 	}, 0.0);
 }
 
+void PlayMode::drawBox(DrawLines &lines, glm::vec2 boxCenterPos, glm::u8vec4 col, float boxWidth, float boxHeight) {
+	lines.draw(
+		glm::vec3(boxCenterPos + glm::vec2(-boxWidth / 2, -boxHeight / 2), 0.0f),
+		glm::vec3(boxCenterPos + glm::vec2(boxWidth / 2, -boxHeight / 2), 0.0f),
+		col
+	);
+	
+	lines.draw(
+		glm::vec3(boxCenterPos + glm::vec2(boxWidth / 2, -boxHeight / 2), 0.0f),
+		glm::vec3(boxCenterPos + glm::vec2(boxWidth / 2, boxHeight / 2), 0.0f),
+		col
+	);
+
+	lines.draw(
+		glm::vec3(boxCenterPos + glm::vec2(boxWidth / 2, boxHeight / 2), 0.0f),
+		glm::vec3(boxCenterPos + glm::vec2(-boxWidth / 2, boxHeight / 2), 0.0f),
+		col
+	);
+
+	lines.draw(
+		glm::vec3(boxCenterPos + glm::vec2(-boxWidth / 2, boxHeight / 2), 0.0f),
+		glm::vec3(boxCenterPos + glm::vec2(-boxWidth / 2, -boxHeight / 2), 0.0f),
+		col
+	);
+}
+
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
-
-	static std::array< glm::vec2, 16 > const circle = [](){
-		std::array< glm::vec2, 16 > ret;
-		for (uint32_t a = 0; a < ret.size(); ++a) {
-			float ang = a / float(ret.size()) * 2.0f * float(M_PI);
-			ret[a] = glm::vec2(std::cos(ang), std::sin(ang));
-		}
-		return ret;
-	}();
-
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
@@ -119,8 +135,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	//figure out view transform to center the arena:
 	float aspect = float(drawable_size.x) / float(drawable_size.y);
 	float scale = std::min(
-		2.0f * aspect / (Game::ArenaMax.x - Game::ArenaMin.x + 2.0f * Game::PlayerRadius),
-		2.0f / (Game::ArenaMax.y - Game::ArenaMin.y + 2.0f * Game::PlayerRadius)
+		2.0f * aspect / (Game::ArenaMax.x - Game::ArenaMin.x + Game::PlayerWidth),
+		2.0f / (Game::ArenaMax.y - Game::ArenaMin.y + Game::PlayerHeight)
 	);
 	glm::vec2 offset = -0.5f * (Game::ArenaMax + Game::ArenaMin);
 
@@ -154,28 +170,23 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 		for (auto const &player : game.players) {
 			glm::u8vec4 col = glm::u8vec4(player.color.x*255, player.color.y*255, player.color.z*255, 0xff);
-			if (&player == &game.players.front()) {
-				//mark current player (which server sends first):
-				lines.draw(
-					glm::vec3(player.position + Game::PlayerRadius * glm::vec2(-0.5f,-0.5f), 0.0f),
-					glm::vec3(player.position + Game::PlayerRadius * glm::vec2( 0.5f, 0.5f), 0.0f),
-					col
-				);
-				lines.draw(
-					glm::vec3(player.position + Game::PlayerRadius * glm::vec2(-0.5f, 0.5f), 0.0f),
-					glm::vec3(player.position + Game::PlayerRadius * glm::vec2( 0.5f,-0.5f), 0.0f),
-					col
-				);
-			}
-			for (uint32_t a = 0; a < circle.size(); ++a) {
-				lines.draw(
-					glm::vec3(player.position + Game::PlayerRadius * circle[a], 0.0f),
-					glm::vec3(player.position + Game::PlayerRadius * circle[(a+1)%circle.size()], 0.0f),
-					col
-				);
-			}
+			drawBox(lines, player.position, col, Game::PlayerWidth, Game::PlayerHeight);
+		}
 
-			draw_text(player.position + glm::vec2(0.0f, -0.1f + Game::PlayerRadius), player.name, 0.09f);
+		for (auto const &block : game.grid) {
+			glm::u8vec4 col = glm::u8vec4(block->color.x*255, block->color.y*255, block->color.z*255, 0xff);
+			drawBox(lines, block->position, col, Game::GridBlockWidth, Game::GridBlockHeight);
+		}
+
+		for (auto const &ball : game.balls) {
+			glm::u8vec4 col = glm::u8vec4(ball->color.x*255, ball->color.y*255, ball->color.z*255, 0xff);
+			drawBox(lines, ball->position, col, Game::BallWidth, Game::BallHeight);
+		}
+
+		if (game.players.size() < 2) {
+			draw_text(glm::vec2(-1.75f, -1.0f), "Waiting for more players...", 0.09f);
+		} else {
+			draw_text(glm::vec2(-1.75f, -1.0f), "Score: " + std::to_string(game.score), 0.09f);
 		}
 	}
 	GL_ERRORS();

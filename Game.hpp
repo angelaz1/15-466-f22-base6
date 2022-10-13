@@ -53,6 +53,7 @@ struct Game {
 
 	std::mt19937 mt; //used for spawning players
 	uint32_t next_player_number = 1; //used for naming players
+	uint8_t player_count = 0; //used as a quicker way to get number of players
 
 	Game();
 
@@ -64,14 +65,40 @@ struct Game {
 	inline static constexpr float Tick = 1.0f / 30.0f;
 
 	//arena size:
-	inline static constexpr glm::vec2 ArenaMin = glm::vec2(-0.75f, -1.0f);
-	inline static constexpr glm::vec2 ArenaMax = glm::vec2( 0.75f,  1.0f);
+	inline static constexpr glm::vec2 ArenaMin = glm::vec2(-1.0f, -1.0f);
+	inline static constexpr glm::vec2 ArenaMax = glm::vec2( 1.0f,  1.0f);
 
 	//player constants:
-	inline static constexpr float PlayerRadius = 0.06f;
+	inline static constexpr float PlayerWidth = 0.25f;
+	inline static constexpr float PlayerHeight = 0.02f;
 	inline static constexpr float PlayerSpeed = 2.0f;
-	inline static constexpr float PlayerAccelHalflife = 0.25f;
-	
+	inline static constexpr float PlayerAccelHalflife = 0.15f;
+
+	struct GridBlock {
+		glm::vec2 position;
+		glm::vec3 color;
+	};
+	inline static constexpr uint8_t GridWidth = 18;
+	inline static constexpr uint8_t GridHeight = 16;
+	inline static constexpr float GridStartX = -0.85f;
+	inline static constexpr float GridStartY = -0.375f;
+	inline static constexpr float GridBlockWidth = 0.1f;
+	inline static constexpr float GridBlockHeight = 0.05f;
+	std::vector<GridBlock*> grid = std::vector<GridBlock*>();
+
+
+	struct Ball {
+		glm::vec2 position;
+		glm::vec3 color;
+		glm::vec2 velocity;
+	};
+	std::vector<Ball*> balls = std::vector<Ball*>();
+	inline static constexpr float BallSpeed = 0.75f;
+	inline static constexpr float BallWidth = 0.025f;
+	inline static constexpr float BallHeight = 0.025f;
+	inline static constexpr float BallSpawnChance = 0.4f;
+
+	uint32_t score = 0;
 
 	//---- communication helpers ----
 
